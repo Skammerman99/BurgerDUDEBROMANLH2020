@@ -1,12 +1,12 @@
 from lcuapi import LCU, Event, EventProcessor
+from collections import defaultdict
 import champ_select_overlay
 
+players_dict = defaultdict("NULL")
 
 
 class PrintChampSelectInfo(EventProcessor):
-    summoner_spell_dict = {
-
-    }
+    global players_dict
 
     # Returns True if the event handler can handle the event, False otherwise.
     def can_handle(self, event: Event):
@@ -29,14 +29,25 @@ class PrintChampSelectInfo(EventProcessor):
             elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus'][
                 'pickedByOtherOrBanned']:
                 print(event_json['name'] + " has been picked.")
-                champ_select_overlay.addChampPick(event_json['name'], 0, 1) #FIX-ME - Issue with space in champ name
+                champ_select_overlay.addChampPick(event_json['name'], 0, 1)  # FIX-ME - Issue with space in champ name
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
-            summonerId = event_json['summonerId']
             summonerSlotID = event.uri[-1]
-            skinId = event_json['skinId']
-            spell1= event_json['spell1IconPath']
-            spell2 = event_json['spell2IconPath']
+            temp = {
+                "summonerId": event_json['summonerId'],
+                "skinId": event_json['skinId'],
+                "spell1": event_json['spell1IconPath'],
+                # FIX-ME - Integrate better with DataDragon, use actual spell name?
+                "spell2": event_json['spell2IconPath'],
+            }
+            players_dict[summonerSlotID] = temp
 
+
+class InGameStats(EventProcessor):
+    # Returns True if the event handler can handle the event, False otherwise.
+    def can_handle(self, event: Event):
+        if issubclass(event.__class__, Event):
+            return True
+        return False
 
 
 def main():
