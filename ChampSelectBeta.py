@@ -10,9 +10,20 @@ class PrintChampSelectInfo(EventProcessor):
         return False
 
     #event.uri, event.created, event.data
+    """def handle(self, event: Event):
+        if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
+            print(event.data['data']['name'])"""
+
     def handle(self, event: Event):
-        if event.uri.startswith("/lol-champ-select/v1"):
-            print(event.data)
+        event_json = event.data['data']
+        if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
+            # If a champ has been banned
+            if event_json['selectionStatus']['isBanned']:
+                print(event_json['name'] + " has been banned.")
+            # If a champ is not banned but has "pickedByOtherOrBanned" set to True, it has been picked
+            elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus']['pickedByOtherOrBanned']:
+                print(event_json['name'] + " has been picked.")
+
 
 
 def main():
