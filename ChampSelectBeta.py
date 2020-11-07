@@ -1,4 +1,5 @@
 from lcuapi import LCU, Event, EventProcessor
+import  champ_select_overlay
 
 
 class PrintChampSelectInfo(EventProcessor):
@@ -23,6 +24,7 @@ class PrintChampSelectInfo(EventProcessor):
             # If a champ is not banned but has "pickedByOtherOrBanned" set to True, it has been picked
             elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus']['pickedByOtherOrBanned']:
                 print(event_json['name'] + " has been picked.")
+                champ_select_overlay.addChampPick(event_json['name'], 0, 1)
 
 
 

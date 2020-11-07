@@ -40,7 +40,9 @@ def fullCSTest():
         cs_slot_num += 1
 
 def addChampPick(champion, id, slot):
-    image_url = "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/{}_{}.jpg".format(champion, 1)
+    print('attempting to update with ' + champion)
+    image_url = "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/{}_{}.jpg".format(champion, 0)
+    print(image_url)
     # filename = image_url.split("/")[-1]
     filename = "champ" + str(slot) + ".png"
     print(filename)
