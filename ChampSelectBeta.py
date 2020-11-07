@@ -2,7 +2,7 @@ from lcuapi import LCU, Event, EventProcessor
 from collections import defaultdict
 import champ_select_overlay
 
-players_dict = defaultdict("NULL")
+players_dict = defaultdict()
 
 
 class PrintChampSelectInfo(EventProcessor):

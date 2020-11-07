@@ -18,7 +18,7 @@ if r.status_code ==200:
         shutil.copyfileobj(r.raw, f)
     print('Image successfully downloaded: {}'.format(filename))
 else:
-    print("Image could\n't be retrieved")
+    print("Image couldn't be retrieved")
 
 image = cv2.imread(filename)
 y=0
@@ -35,4 +35,4 @@ cv2.waitKey(0)
 # width, height = img.size
 # print(width, height)
 # img = img.crop((0,50,510,292))
-# img.show()
+img.show()
