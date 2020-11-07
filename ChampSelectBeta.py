@@ -11,8 +11,8 @@ class PrintChampSelectInfo(EventProcessor):
 
     #event.uri, event.created, event.data
     def handle(self, event: Event):
-        if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
-            print(event.data['data']['name'])
+        if event.uri.startswith("/lol-champ-select/v1"):
+            print(event.data)
 
 
 def main():
