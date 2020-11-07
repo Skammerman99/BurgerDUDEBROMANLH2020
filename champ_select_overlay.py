@@ -16,8 +16,6 @@ def fullCSTest():
         image_url= "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/{}_{}.jpg".format(champion, num)
         #filename = image_url.split("/")[-1]
         filename = "champ" + str(cs_slot_num) + ".png"
-        print(filename)
-
         r= requests.get(image_url, stream =True)
 
         if r.status_code ==200:
