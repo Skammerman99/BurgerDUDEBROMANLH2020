@@ -1,8 +1,12 @@
 from lcuapi import LCU, Event, EventProcessor
-import  champ_select_overlay
+import champ_select_overlay
+
 
 
 class PrintChampSelectInfo(EventProcessor):
+    summoner_spell_dict = {
+
+    }
 
     # Returns True if the event handler can handle the event, False otherwise.
     def can_handle(self, event: Event):
@@ -10,7 +14,7 @@ class PrintChampSelectInfo(EventProcessor):
             return True
         return False
 
-    #event.uri, event.created, event.data
+    # event.uri, event.created, event.data
     """def handle(self, event: Event):
         if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
             print(event.data['data']['name'])"""
@@ -22,9 +26,16 @@ class PrintChampSelectInfo(EventProcessor):
             if event_json['selectionStatus']['isBanned']:
                 print(event_json['name'] + " has been banned.")
             # If a champ is not banned but has "pickedByOtherOrBanned" set to True, it has been picked
-            elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus']['pickedByOtherOrBanned']:
+            elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus'][
+                'pickedByOtherOrBanned']:
                 print(event_json['name'] + " has been picked.")
-                champ_select_overlay.addChampPick(event_json['name'], 0, 1)
+                champ_select_overlay.addChampPick(event_json['name'], 0, 1) #FIX-ME - Issue with space in champ name
+        if event.uri.startswith("/lol-champ-select/v1/summoners"):
+            summonerId = event_json['summonerId']
+            summonerSlotID = event.uri[-1]
+            skinId = event_json['skinId']
+            spell1= event_json['spell1IconPath']
+            spell2 = event_json['spell2IconPath']
 
 
 
