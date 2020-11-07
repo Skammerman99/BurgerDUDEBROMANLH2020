@@ -1,8 +1,8 @@
 import requests
 import json
+from config import RG_API_KEY
 
 # Basic Riot API Query
-API_KEY = "RGAPI-722d4212-9d5e-4ae0-9061-d4e494c9634c"
 
 def getJSON():
     summoner_name = "MrFrostbyt3"
@@ -13,7 +13,7 @@ def getJSON():
     "Accept-Language": "en-US,en;q=0.9",
     "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
     "Origin": "https://developer.riotgames.com",
-    "X-Riot-Token": API_KEY
+    "X-Riot-Token": RG_API_KEY
     }
 
     response = requests.request("GET", url+summoner_name, headers=headers)
