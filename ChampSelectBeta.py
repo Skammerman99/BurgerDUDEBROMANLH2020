@@ -2,7 +2,12 @@ from lcuapi import LCU, Event, EventProcessor
 from collections import defaultdict
 import champ_select_overlay
 
-players_dict = defaultdict("NULL")
+players_dict = defaultdict(str)
+
+champ_name_exceptions = {"Kog'Maw" : "KogMaw",
+                         "Nunu & Willump" : "Nunu",
+                         "Rek'Sai" : "RekSai"
+                        }
 
 
 class PrintChampSelectInfo(EventProcessor):
@@ -28,8 +33,14 @@ class PrintChampSelectInfo(EventProcessor):
             # If a champ is not banned but has "pickedByOtherOrBanned" set to True, it has been picked
             elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus'][
                 'pickedByOtherOrBanned']:
-                print(event_json['name'] + " has been picked.")
-                champ_select_overlay.addChampPick(event_json['name'], 0, 1)  # FIX-ME - Issue with space in champ name
+                if event_json['name'] in champ_name_exceptions.keys():
+                    champ_name = champ_name_exceptions[event_json['name']]
+                else:
+                    champ_name = event_json['name'].replace(" ", "")
+                    if "'" in champ_name:
+                        champ_name = champ_name[0] + champ_name[1:].replace("'", "").lower()
+                print(champ_name + " has been picked.")
+                champ_select_overlay.addChampPick(champ_name, 0, 1)
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
             summonerSlotID = event.uri[-1]
             temp = {
