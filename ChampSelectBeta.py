@@ -1,5 +1,7 @@
 from lcuapi import LCU, Event, EventProcessor
+from config import RG_API_KEY
 from collections import defaultdict
+import requests
 import champ_select_overlay
 import sums
 
@@ -12,6 +14,25 @@ champ_name_exceptions = {"Kog'Maw" : "KogMaw",
 
 sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
                  "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
+
+
+players_dict = defaultdict(dict)
+
+def playerDictHelper(summonerName):
+    summoner_name = str(summonerName)
+    url = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-account/"
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Origin": "https://developer.riotgames.com",
+        "X-Riot-Token": RG_API_KEY
+    }
+
+    response = requests.request("GET", url + summoner_name, headers=headers)
+    print(response.json()['id'])
+
 
 
 class PrintChampSelectInfo(EventProcessor):
@@ -46,7 +67,8 @@ class PrintChampSelectInfo(EventProcessor):
                 print(champ_name + " has been picked.")
                 champ_select_overlay.addChampPick(champ_name, 0, 1)
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
-            summonerSlotID = event.uri[-1]
+            print(event_json)
+            summonerSlotID = event_json['slotId']
             temp = {
                 "summonerId": event_json['summonerId'],
                 "skinId": event_json['skinId'],
@@ -55,6 +77,7 @@ class PrintChampSelectInfo(EventProcessor):
                 "spell2": event_json['spell2IconPath'],
             }
             players_dict[summonerSlotID] = temp
+
             if event_json['spell1IconPath'] in sum_exception.keys():
                 spell1 = sum_exception[event_json['spell1IconPath']]
             else:
@@ -72,6 +95,10 @@ class PrintChampSelectInfo(EventProcessor):
             print(spell2)
             sums.addSummonerSpell(spell2, 2)
 
+        if event.uri.startswith("/lol-summoner/v1/current-summoner"):
+            print()
+            print("TEST JSON LOOK HERE JAMEL LOOK")
+            print(event_json)
 
 
 
