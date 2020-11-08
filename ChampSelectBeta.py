@@ -38,8 +38,8 @@ class PrintChampSelectInfo(EventProcessor):
 
     def handle(self, event: Event):
         event_json = event.data['data']
-        if event.uri.startswith("/lol-champ-select/v1/session"):
-            print("BANS HERE PLS WORG " + str(event_json['bans']))
+        # if event.uri.startswith("/lol-champ-select/v1/session"):
+        #     print("BANS HERE PLS WORG " + str(event_json['bans']))
             # for ban in event_json['bans']['myTeamBans']:
             #     bans_dict["blue_side"] =
             # bans_dict["blue_side"] = event_json['bans']['myTeamBans']
@@ -50,12 +50,20 @@ class PrintChampSelectInfo(EventProcessor):
             # If a champ has been banned
             if event_json['selectionStatus']['isBanned']:
                 print(event_json['name'] + " has been banned.")
-                if len(bans_dict["blue_side"]) == len(bans_dict["red_side"]):
-                    bans_dict["blue_side"][event_json['id']] = event_json['name']
-                    champ_select_overlay.addChampBan(event_json['name'], len(bans_dict["blue_side"]))
+                champ_name =  event_json['name']
+                if champ_name in champ_name_exceptions.keys():
+                    champ_name = champ_name_exceptions[champ_name]
                 else:
-                    bans_dict["red_side"][event_json['id']] = event_json['name']
-                    champ_select_overlay.addChampBan(event_json['name'], len(bans_dict["red_side"]) + 5)
+                    champ_name = champ_name.replace(" ", "")
+                    if "'" in champ_name:
+                        champ_name = champ_name[0] + champ_name[1:].replace("'", "").lower()
+
+                if len(bans_dict["blue_side"]) == len(bans_dict["red_side"]):
+                    bans_dict["blue_side"][event_json['id']] = champ_name
+                    champ_select_overlay.addChampBan(champ_name, len(bans_dict["blue_side"]))
+                else:
+                    bans_dict["red_side"][event_json['id']] = champ_name
+                    champ_select_overlay.addChampBan(champ_name, len(bans_dict["red_side"]) + 5)
                 print(bans_dict)
 
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
@@ -88,8 +96,6 @@ class PrintChampSelectInfo(EventProcessor):
                         spell1 = sum_exception[event_json['spell1IconPath']]
                     else:
                         spell1temp = event_json['spell1IconPath'].split("/")[-1][:-4].split("_")
-                        #print("spell1temp = " + str(spell1temp))
-                        # print("spell1temp = " + str(spell1temp))
                         spell1 = spell1temp[0] + spell1temp[1][0].upper() + spell1temp[1][1:]
                     sums.addSummonerSpell(spell1, 2 * summonerSlotID + 1)
 

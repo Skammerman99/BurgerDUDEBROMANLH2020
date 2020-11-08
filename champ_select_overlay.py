@@ -65,12 +65,12 @@ def addChampPick(champion, skinID, slot):
     cv2.waitKey(0)
 
 def addChampBan(champion, slot):
-    print('attempting to update with ' + champion)
+    #print('attempting to update with ' + champion)
     image_url = "http://ddragon.leagueoflegends.com/cdn/10.22.1/img/champion/{}.png".format(champion)
-    print(image_url)
+    #print(image_url)
     # filename = image_url.split("/")[-1]
     filename = "ban" + str(slot) + ".png"
-    print(filename)
+    #print(filename)
 
     r = requests.get(image_url, stream=True)
 
@@ -78,6 +78,6 @@ def addChampBan(champion, slot):
         r.raw.decode_content = True
         with open(filename, 'wb') as f:
             shutil.copyfileobj(r.raw, f)
-        print('Image successfully downloaded: {}'.format(filename))
+        #print('Image successfully downloaded: {}'.format(filename))
     else:
         print("Image could\n't be retrieved")
