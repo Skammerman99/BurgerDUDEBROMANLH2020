@@ -37,7 +37,7 @@ def fullCSTest():
 
         cs_slot_num += 1
 
-def addChampPick(champion, id, slot):
+def addChampPick(champion, skinID, slot):
     print('attempting to update with ' + champion)
     image_url = "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/{}_{}.jpg".format(champion, 0)
     print(image_url)
