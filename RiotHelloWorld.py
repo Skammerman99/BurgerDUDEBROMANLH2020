@@ -1,5 +1,4 @@
 import requests
-import json
 from config import RG_API_KEY
 
 # Basic Riot API Query
