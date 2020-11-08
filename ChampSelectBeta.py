@@ -127,9 +127,8 @@ def main():
                 print("Hi Jamel I got your encrypted id right here: ", summ4json['id'])
 
                 # Code to grab top 3 characters played
-                mains_url = "https://" + REGION + "/lol/champion-mastery/v4/champion-masteries/by-summoner/" + summ4json['id']
-
-                headers = {
+                mains_url = "https://" + REGION + ".api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/" + summ4json['id']
+                {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36",
                     "Accept-Language": "en-US,en;q=0.9",
                     "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
