@@ -4,9 +4,12 @@ from collections import defaultdict
 import requests
 import champ_select_overlay
 import sums
+import time
 import text_files
 
 REGION = "na1"
+patch_json = requests.get('https://ddragon.leagueoflegends.com/api/versions.json').json()
+latest_patch = patch_json[0]
 
 # players_dict is constantly updating to check for summoner spell changes & champion changes.
 # name_dict is created at the start of champ select and is not updated
@@ -14,17 +17,25 @@ players_dict = defaultdict(dict)
 name_dict = defaultdict(str)
 bans_dict = defaultdict(lambda: defaultdict(str))
 
+sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png": "SummonerDot",
+                 "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png": "SummonerBarrier"}
 
-sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
-                 "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
+champ_name_exceptions = {"Kog'Maw": "KogMaw",
+                         "Nunu & Willump": "Nunu",
+                         "Rek'Sai": "RekSai",
+                         "Dr. Mundo": "DrMundo",
+                         "LeBlanc": "Leblanc"
+                         }
 
-champ_name_exceptions = {"Kog'Maw" : "KogMaw",
-                         "Nunu & Willump" : "Nunu",
-                         "Rek'Sai" : "RekSai",
-                         "Dr. Mundo" : "DrMundo",
-                         "LeBlanc" : "Leblanc"
-                        }
 
+
+def targetedBanHelper():
+    for side, ban_list in bans_dict.items():
+        for banned_id, champ_name in ban_list.items():
+            for player in name_dict.values():
+                print(player)
+                if banned_id in player['mains']:
+                    print("Target Ban: " + player['username'] + " mains " + champ_name)
 
 
 class PrintChampSelectInfo(EventProcessor):
@@ -65,11 +76,12 @@ class PrintChampSelectInfo(EventProcessor):
                 else:
                     bans_dict["red_side"][event_json['id']] = champ_name
                     champ_select_overlay.addChampBan(champ_name, len(bans_dict["red_side"]) + 5)
-                print(bans_dict)
+                # print(bans_dict)
+                targetedBanHelper()
 
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
             if not event_json['isPlaceholder']:
-                print(event_json)
+                # print(event_json)
                 summonerSlotID = event_json['slotId']
                 temp = {
                     "summonerId": event_json['summonerId'],
@@ -121,9 +133,8 @@ def main():
     temp = True
     while temp:
         if players_dict[0] == {}:
-            import time
-            time.sleep(5)
-            print("Awaiting start of Champ Select... (Retrying in 5 seconds)")
+            time.sleep(3)
+            print("Awaiting start of Champ Select... (Retrying in 3 seconds)")
         else:
             print("Champ Select detected, players present:")
 
@@ -131,9 +142,9 @@ def main():
                 lcu_url = '/lol-summoner/v1/summoners/' + str(players_dict[k]['summonerId'])
                 summoner_json = lcu.get(lcu_url)
                 temp = {
-                    'username' : "",
-                    'encryptedId' : 0,
-                    'mains' : [], # NOTE: MAIN CHAMPS GET SAVED AS CHAMPION IDs
+                    'username': "",
+                    'encryptedId': 0,
+                    'mains': [],  # NOTE: MAIN CHAMPS GET SAVED AS CHAMPION IDs
                 }
                 temp['username'] = summoner_json['displayName']
                 text_files.addSummonerNameFile(temp['username'], k)
@@ -165,11 +176,20 @@ def main():
                 mains_json = requests.request("GET", mains_url, headers=headers).json()
                 temp['mains'] = [mains_json[0]['championId'], mains_json[1]['championId'], mains_json[2]['championId']]
                 name_dict[k] = temp
-                print(name_dict)
+                # print(name_dict)
                 print(summoner_json['displayName'])
 
 
             temp = False
+            print("I set champ select loop to false. It's done.")
+
+    # gaming = True
+    # while gaming:
+    #     print("I'm looking for in game data.")
+    #     jamel = lcu.get("/liveclientdata/playerscores?summonerName=MrFrostByt3")
+    #     if jamel['creepScore'] > 6:
+    #         print("Jamel is a god at CSing: ", jamel['creepScore'])
+    #     time.sleep(5)
     lcu.wait()
 
 

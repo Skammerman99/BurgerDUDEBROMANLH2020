@@ -6,7 +6,7 @@ champion = "Talon"
 num = 0
 image_url= "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/{}_{}.jpg".format(champion, num)
 filename = image_url.split("/")[-1]
-print(filename)
+# print(filename)
 
 r= requests.get(image_url, stream =True)
 
