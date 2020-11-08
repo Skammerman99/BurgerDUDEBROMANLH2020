@@ -4,6 +4,7 @@ from collections import defaultdict
 import requests
 import champ_select_overlay
 import sums
+import text_files
 
 REGION = "na1"
 
@@ -135,7 +136,7 @@ def main():
                     'mains' : [], # NOTE: MAIN CHAMPS GET SAVED AS CHAMPION IDs
                 }
                 temp['username'] = summoner_json['displayName']
-
+                text_files.addSummonerNameFile(temp['username'], k)
                 # Code to grab encrypted ID.
                 summ_url = "https://" + REGION + ".api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summoner_json['displayName']
 
