@@ -1,3 +1,4 @@
+import cv2
 import requests
 import shutil
 
@@ -17,3 +18,8 @@ def addSummonerSpell(spell, slot):
         #print('Image successfully downloaded: {}'.format(filename))
     else:
         print("Image could\n't be retrieved")
+
+    image = cv2.imread(filename)
+    resized_image = cv2.resize(image, (40, 40))
+    cv2.imwrite(filename, resized_image)
+    cv2.waitKey(0)

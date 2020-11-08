@@ -155,7 +155,7 @@ def main():
             print("Awaiting start of Champ Select... (Retrying in 3 seconds)")
         else:
             print("Champ Select detected, players present:")
-
+            time.sleep(0.2)
             for k, v in players_dict.items():
                 lcu_url = '/lol-summoner/v1/summoners/' + str(players_dict[k]['summonerId'])
                 summoner_json = lcu.get(lcu_url)
