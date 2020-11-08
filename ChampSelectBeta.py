@@ -9,6 +9,7 @@ import sums
 # name_dict is created at the start of champ select and is not updated
 players_dict = defaultdict(dict)
 name_dict = defaultdict(str)
+bans_dict = defaultdict(list)
 
 sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
                  "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
@@ -20,8 +21,11 @@ champ_name_exceptions = {"Kog'Maw" : "KogMaw",
                          "LeBlanc" : "Leblanc"
                         }
 
+
+
 class PrintChampSelectInfo(EventProcessor):
     global players_dict
+    global bans_dict
 
     # Returns True if the event handler can handle the event, False otherwise.
     def can_handle(self, event: Event):
@@ -31,10 +35,23 @@ class PrintChampSelectInfo(EventProcessor):
 
     def handle(self, event: Event):
         event_json = event.data['data']
+        if event.uri.startswith("/lol-champ-select/v1/session"):
+            print("BANS HERE PLS WORG " + str(event_json['bans']))
+            bans_dict["blue_side_ids"] = event_json['bans']['myTeamBans']
+            bans_dict["red_side_ids"] = event_json['bans']['theirTeamBans']
+            print(bans_dict)
+
         if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
             # If a champ has been banned
             if event_json['selectionStatus']['isBanned']:
                 print(event_json['name'] + " has been banned.")
+                if len(bans_dict["blue_side_names"]) == len(bans_dict["red_side_names"]):
+                    bans_dict["blue_side_names"].append(event_json['name'])
+                    champ_select_overlay.addChampBan(event_json['name'], len(bans_dict["blue_side_names"]))
+                else:
+                    bans_dict["red_side_names"].append(event_json['name'])
+                    champ_select_overlay.addChampBan(event_json['name'], len(bans_dict["red_side_names"]) + 5)
+                print(bans_dict)
 
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
             if not event_json['isPlaceholder']:
@@ -62,12 +79,12 @@ class PrintChampSelectInfo(EventProcessor):
                     champ_select_overlay.addChampPick(champ_name, 0, summonerSlotID+1)
 
                 if not event_json['spell1IconPath'] == '' and not event_json['spell1IconPath'] == '':
-                    print(event_json['spell1IconPath'])
+                    #print(event_json['spell1IconPath'])
                     if event_json['spell1IconPath'] in sum_exception.keys():
                         spell1 = sum_exception[event_json['spell1IconPath']]
                     else:
                         spell1temp = event_json['spell1IconPath'].split("/")[-1][:-4].split("_")
-                        print("spell1temp = " + str(spell1temp))
+                        #print("spell1temp = " + str(spell1temp))
                         spell1 = spell1temp[0] + spell1temp[1][0].upper() + spell1temp[1][1:]
                     sums.addSummonerSpell(spell1, 2 * summonerSlotID + 1)
 
@@ -75,7 +92,7 @@ class PrintChampSelectInfo(EventProcessor):
                         spell2 = sum_exception[event_json['spell2IconPath']]
                     else:
                         spell2temp = event_json['spell2IconPath'].split("/")[-1][:-4].split("_")
-                        print("spell2temp = " + str(spell2temp))
+                        #print("spell2temp = " + str(spell2temp))
                         spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
                     sums.addSummonerSpell(spell2, 2*summonerSlotID + 2)
 
