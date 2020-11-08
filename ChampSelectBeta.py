@@ -5,11 +5,15 @@ import requests
 import champ_select_overlay
 import sums
 
+REGION = "na1"
+
 # players_dict is constantly updating to check for summoner spell changes & champion changes.
 # name_dict is created at the start of champ select and is not updated
 players_dict = defaultdict(dict)
 name_dict = defaultdict(str)
 bans_dict = defaultdict(list)
+# Summoner : [List of mains]
+banned_mains = {}
 
 sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
                  "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
@@ -109,15 +113,52 @@ def main():
     while temp:
         if players_dict[0] == {}:
             import time
-            time.sleep(2)
-            print("Awaiting start of Champ Select")
+            time.sleep(5)
+            print("Awaiting start of Champ Select... (Retrying in 5 seconds)")
         else:
             print("Champ Select detected, players present:")
+
             for k, v in players_dict.items():
-                url = '/lol-summoner/v1/summoners/' + str(players_dict[k]['summonerId'])
-                summoner_json = lcu.get(url)
-                name_dict[k] = summoner_json['displayName']
+                lcu_url = '/lol-summoner/v1/summoners/' + str(players_dict[k]['summonerId'])
+                summoner_json = lcu.get(lcu_url)
+                temp = {
+                    'username' : "",
+                    'encryptedId' : 0,
+                    'mains' : [], # NOTE: MAIN CHAMPS GET SAVED AS CHAMPION IDs
+                }
+                temp['username'] = summoner_json['displayName']
+
+                # Code to grab encrypted ID.
+                summ_url = "https://" + REGION + ".api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summoner_json['displayName']
+
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36",
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "Origin": "https://developer.riotgames.com",
+                    "X-Riot-Token": RG_API_KEY
+                }
+
+                summ4json = requests.request("GET", summ_url, headers=headers).json()
+                temp['encrpytedId'] = summ4json['id']
+                print("Hi Jamel I got your encrypted id right here: ", summ4json['id'])
+
+                # Code to grab top 3 characters played
+                mains_url = "https://" + REGION + ".api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/" + summ4json['id']
+                {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36",
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "Origin": "https://developer.riotgames.com",
+                    "X-Riot-Token": RG_API_KEY
+                }
+
+                mains_json = requests.request("GET", mains_url, headers=headers).json()
+                temp['mains'] = [mains_json[0]['championId'], mains_json[1]['championId'], mains_json[2]['championId']]
+                name_dict[k] = temp
                 print(summoner_json['displayName'])
+
+
             temp = False
     lcu.wait()
 
