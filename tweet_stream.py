@@ -37,13 +37,17 @@ class MyTweetListener(StreamListener):
         
         file1 = open("Tweets.txt", "a", encoding="utf8")
 
-        time.sleep(4)
+        time.sleep(2)
 
-        if len(temp) >75:
-            temp = temp[:72] + "..."
+        if len(temp) > 95:
+            temp = temp[:92] + "..."
         print(' '.join(temp.split("\n")))
-        file1.truncate(0)
-        file1.write(' '.join(temp.split("\n")))
+        
+        answer = input("\nWould you like to display this Tweet? Answer with Y/N. ")
+        
+        if answer:
+            file1.truncate(0)
+            file1.write(' '.join(temp.split("\n")))
 
         file1.close()
         for team, hashtag in self.team_hashtag_dict.items():
@@ -63,7 +67,7 @@ class MyTweetListener(StreamListener):
 
 if __name__ == "__main__":
      
-     
+    print('\n\n')
     
     listener = MyTweetListener()
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
