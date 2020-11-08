@@ -121,6 +121,23 @@ class PrintChampSelectInfo(EventProcessor):
                         spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
                     sums.addSummonerSpell(spell2, 2*summonerSlotID + 2)
 
+def csFinder():
+    gaming = True
+    while gaming:
+        try:
+            print("I'm looking for in game data.")
+            jamel = requests.request("GET", "​https://127.0.0.1:2999/liveclientdata/playersummonerspells?summonerName=MrFrostByt3")
+            print(jamel)
+            # if jamel['creepScore'] > 6:
+            # print("Jamel is a god at CSing: ", jamel['creepScore'])
+            time.sleep(5)
+        except KeyError as error:
+            # print("Either we're not in game, or something is wrong. Either way, we'll try again in one minute!")
+            # print("Error message: ", error)
+            time.sleep(5)  # FIX-ME - make me 60 seconds or something on release
+        except Exception as e:
+            print(e)
+            time.sleep(30)
 
 def main():
     global name_dict
@@ -182,15 +199,10 @@ def main():
 
             temp = False
             print("I set champ select loop to false. It's done.")
-
-    # gaming = True
-    # while gaming:
-    #     print("I'm looking for in game data.")
-    #     jamel = lcu.get("/liveclientdata/playerscores?summonerName=MrFrostByt3")
-    #     if jamel['creepScore'] > 6:
-    #         print("Jamel is a god at CSing: ", jamel['creepScore'])
-    #     time.sleep(5)
+        print("calling csFinder")
+        csFinder()
     lcu.wait()
+
 
 
 if __name__ == '__main__':
