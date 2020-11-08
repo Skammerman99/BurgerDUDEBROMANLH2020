@@ -6,6 +6,10 @@ import champ_select_overlay
 import sums
 
 players_dict = defaultdict(dict)
+name_dict = defaultdict(str)
+
+sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
+                 "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
 
 champ_name_exceptions = {"Kog'Maw" : "KogMaw",
                          "Nunu & Willump" : "Nunu",
@@ -13,12 +17,6 @@ champ_name_exceptions = {"Kog'Maw" : "KogMaw",
                          "Dr. Mundo" : "DrMundo",
                          "LeBlanc" : "Leblanc"
                         }
-
-sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
-                 "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
-
-
-players_dict = defaultdict(dict)
 
 
 def playerDictHelper(summonerName):
@@ -46,10 +44,6 @@ class PrintChampSelectInfo(EventProcessor):
             return True
         return False
 
-    # event.uri, event.created, event.data
-    """def handle(self, event: Event):
-        if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
-            print(event.data['data']['name'])"""
 
     def handle(self, event: Event):
         event_json = event.data['data']
@@ -101,11 +95,6 @@ class PrintChampSelectInfo(EventProcessor):
                         spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
                     sums.addSummonerSpell(spell2, 2*summonerSlotID + 2)
 
-        if event.uri.startswith("/lol-summoner/v1/current-summoner"):
-            print()
-            print("TEST JSON LOOK HERE JAMEL LOOK")
-            print(event_json)
-
 
 
 class InGameStats(EventProcessor):
@@ -117,11 +106,27 @@ class InGameStats(EventProcessor):
 
 
 def main():
+    global name_dict
+    global players_dict
     lcu = LCU()
     lcu.attach_event_processor(PrintChampSelectInfo())
     lcu.wait_for_client_to_open()
     lcu.wait_for_login()
     lcu.process_event_stream()
+    temp = True
+    while temp == True:
+        if players_dict[0] == {}:
+            import time
+            time.sleep(2)
+            print("I sleep")
+        else:
+            print("WOKE")
+            for k,v in players_dict.items():
+                url = '/lol-summoner/v1/summoners/' + str(players_dict[k]['summonerId'])
+                summoner_json = lcu.get(url)
+                name_dict[k] = summoner_json['displayName']
+                temp = False
+            print(name_dict)
     lcu.wait()
 
 
