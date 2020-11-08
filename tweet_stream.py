@@ -38,6 +38,9 @@ class MyTweetListener(StreamListener):
         file1 = open("Tweets.txt", "a", encoding="utf8")
 
         time.sleep(4)
+
+        if len(temp) >75:
+            temp = temp[:72] + "..."
         print(' '.join(temp.split("\n")))
         file1.truncate(0)
         file1.write(' '.join(temp.split("\n")))
@@ -67,6 +70,6 @@ if __name__ == "__main__":
     auth.set_access_token(access_token, access_secret)
 
     strem = tweepy.Stream(auth, listener)
-    strem.filter(track=[el for el in listener.team_hashtag_dict.values()])
+    strem.filter(languages = ['en'], track=[el for el in listener.team_hashtag_dict.values()])
 
     print("You're all set. Filtering tweets now!!")
