@@ -63,7 +63,18 @@ class MyTweetListener(StreamListener):
     def on_error(self, status):
         print("Error status:", status)
 
+def run():
 
+    print('\n\n')
+    
+    listener = MyTweetListener()
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+
+    strem = tweepy.Stream(auth, listener)
+    strem.filter(languages=["en"],track=[el for el in listener.team_hashtag_dict.values()])
+
+    print("You're all set. Filtering tweets now!!")
 
 if __name__ == "__main__":
      
