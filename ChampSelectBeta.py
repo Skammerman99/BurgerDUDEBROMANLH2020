@@ -6,6 +6,7 @@ import champ_select_overlay
 import sums
 import time
 import text_files
+import tweet_stream
 
 REGION = "na1"
 patch_json = requests.get('https://ddragon.leagueoflegends.com/api/versions.json').json()
@@ -199,11 +200,22 @@ def main():
 
             temp = False
             print("I set champ select loop to false. It's done.")
-        print("calling csFinder")
-        csFinder()
+        #print("calling csFinder")
+        #csFinder()
     lcu.wait()
 
 
+def genTeamNames(name, num):
+    fname = "Team{}.txt".format(num)
+    f = open(fname, "w+")
+    f.write(name)
 
 if __name__ == '__main__':
+    answer = input("\nWould you like to enter team names? (Y/N)")
+    if answer == "Y":
+        name = input("\nEnter Team 1 Name: ")
+        genTeamNames(name,1)
+        name = input("\nEnter Team 2 Name: ")
+        genTeamNames(name,2)
+
     main()
