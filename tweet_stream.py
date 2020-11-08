@@ -1,10 +1,12 @@
 import tweepy
 import json
+import time
 from config import consumer_key
 from config import consumer_secret
 from config import access_secret
 from config import access_token
 from tweepy.streaming import StreamListener
+
 class MyTweetListener(StreamListener):
 
     def __init__(self):
@@ -28,18 +30,27 @@ class MyTweetListener(StreamListener):
     
     def on_data(self, data):
         
-        twitter_json = json.loads(data)
+        twitter_json = json.loads(data) 
 
-        print(twitter_json["user"]["name"])
-        print(twitter_json["text"])
+        #file1.write(twitter_json["user"]["name"])
+        temp = str(twitter_json["text"])
+        
+        file1 = open("Tweets.txt", "a", encoding="utf8")
+
+        time.sleep(4)
+        print(' '.join(temp.split("\n")))
+        file1.truncate(0)
+        file1.write(' '.join(temp.split("\n")))
+
+        file1.close()
         for team, hashtag in self.team_hashtag_dict.items():
             if "extended_tweet" in twitter_json: #and "hashtags" in twitter_json["extended_tweet"]
 
                 if hashtag in twitter_json["extended_tweet"]["full_text"]:
                     self.team_tweet_count_dict[team] += 1
-                    print(self.team_tweet_count_dict)
+                    #print(self.team_tweet_count_dict)
 
-                
+
         return True
     
     def on_error(self, status):
@@ -48,6 +59,9 @@ class MyTweetListener(StreamListener):
 
 
 if __name__ == "__main__":
+     
+     
+    
     listener = MyTweetListener()
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_secret)
