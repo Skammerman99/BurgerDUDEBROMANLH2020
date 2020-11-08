@@ -67,38 +67,39 @@ class PrintChampSelectInfo(EventProcessor):
                 #print(champ_name + " has been picked.")
                 #champ_select_overlay.addChampPick(champ_name, 0, 1)
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
-            print(event_json)
-            summonerSlotID = event_json['slotId']
-            temp = {
-                "summonerId": event_json['summonerId'],
-                "skinId": event_json['skinId'],
-                "spell1": event_json['spell1IconPath'],
-                # FIX-ME - Integrate better with DataDragon, use actual spell name?
-                "spell2": event_json['spell2IconPath'],
-            }
-            players_dict[summonerSlotID] = temp
+            if not event_json['isPlaceholder']:
+                print(event_json)
+                summonerSlotID = event_json['slotId']
+                temp = {
+                    "summonerId": event_json['summonerId'],
+                    "skinId": event_json['skinId'],
+                    "spell1": event_json['spell1IconPath'],
+                    # FIX-ME - Integrate better with DataDragon, use actual spell name?
+                    "spell2": event_json['spell2IconPath'],
+                }
+                players_dict[summonerSlotID] = temp
 
-            champ_name = event_json['championName']
-            if champ_name != "" and event_json['activeActionType'] == "pick":
-                print(champ_name + " has been picked.")
-                champ_select_overlay.addChampPick(champ_name, 0, summonerSlotID+1)
+                champ_name = event_json['championName']
+                if champ_name != "" and event_json['activeActionType'] == "pick":
+                    print(champ_name + " has been picked.")
+                    champ_select_overlay.addChampPick(champ_name, 0, summonerSlotID+1)
+                if not event_json['spell1IconPath'] == '' and not event_json['spell1IconPath'] == '':
+                    print(event_json['spell1IconPath'])
+                    if event_json['spell1IconPath'] in sum_exception.keys():
+                        spell1 = sum_exception[event_json['spell1IconPath']]
+                    else:
+                        spell1temp = event_json['spell1IconPath'].split("/")[-1][:-4].split("_")
+                        print("spell1temp = " + str(spell1temp))
+                        spell1 = spell1temp[0] + spell1temp[1][0].upper() + spell1temp[1][1:]
+                    sums.addSummonerSpell(spell1, 2*summonerSlotID + 1)
 
-            print(event_json['spell1IconPath'])
-            if event_json['spell1IconPath'] in sum_exception.keys():
-                spell1 = sum_exception[event_json['spell1IconPath']]
-            else:
-                spell1temp = event_json['spell1IconPath'].split("/")[-1][:-4].split("_")
-                print("spell1temp = "  + str(spell1temp))
-                spell1 = spell1temp[0] + spell1temp[1][0].upper() + spell1temp[1][1:]
-            sums.addSummonerSpell(spell1, 1)
-
-            if event_json['spell2IconPath'] in sum_exception.keys():
-                spell2 = sum_exception[event_json['spell2IconPath']]
-            else:
-                spell2temp = event_json['spell2IconPath'].split("/")[-1][:-4].split("_")
-                print("spell2temp = "  + str(spell2temp))
-                spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
-            sums.addSummonerSpell(spell2, 2)
+                    if event_json['spell2IconPath'] in sum_exception.keys():
+                        spell2 = sum_exception[event_json['spell2IconPath']]
+                    else:
+                        spell2temp = event_json['spell2IconPath'].split("/")[-1][:-4].split("_")
+                        print("spell2temp = " + str(spell2temp))
+                        spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
+                    sums.addSummonerSpell(spell2, 2*summonerSlotID + 2)
 
         if event.uri.startswith("/lol-summoner/v1/current-summoner"):
             print()
