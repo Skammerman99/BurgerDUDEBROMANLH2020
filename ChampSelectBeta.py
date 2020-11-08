@@ -18,6 +18,7 @@ sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" 
 
 players_dict = defaultdict(dict)
 
+
 def playerDictHelper(summonerName):
     summoner_name = str(summonerName)
     url = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-account/"
@@ -32,6 +33,7 @@ def playerDictHelper(summonerName):
 
     response = requests.request("GET", url + summoner_name, headers=headers)
     print(response.json()['id'])
+
 
 class PrintChampSelectInfo(EventProcessor):
     global players_dict
@@ -77,26 +79,26 @@ class PrintChampSelectInfo(EventProcessor):
             players_dict[summonerSlotID] = temp
 
             champ_name = event_json['championName']
-            print(champ_name + " has been picked.")
-            if champ_name != "":
+            if champ_name != "" and event_json['activeActionType'] == "pick":
+                print(champ_name + " has been picked.")
                 champ_select_overlay.addChampPick(champ_name, 0, summonerSlotID+1)
-            #
-            # print(event_json['spell1IconPath'])
-            # if event_json['spell1IconPath'] in sum_exception.keys():
-            #     spell1 = sum_exception[event_json['spell1IconPath']]
-            #     print(spell1temp)
-            # else:
-            #     spell1temp = event_json['spell1IconPath'].split("/")[-1][:-4].split("_")
-            #     spell1 = spell1temp[0] + spell1temp[1][0].upper() + spell1temp[1][1:]
-            # sums.addSummonerSpell(spell1, 1)
-            #
-            # if event_json['spell2IconPath'] in sum_exception.keys():
-            #     spell2 = sum_exception[event_json['spell2IconPath']]
-            # else:
-            #     spell2temp = event_json['spell2IconPath'].split("/")[-1][:-4].split("_")
-            #     print(spell2temp)
-            #     spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
-            # sums.addSummonerSpell(spell2, 2)
+
+            print(event_json['spell1IconPath'])
+            if event_json['spell1IconPath'] in sum_exception.keys():
+                spell1 = sum_exception[event_json['spell1IconPath']]
+            else:
+                spell1temp = event_json['spell1IconPath'].split("/")[-1][:-4].split("_")
+                print("spell1temp = "  + str(spell1temp))
+                spell1 = spell1temp[0] + spell1temp[1][0].upper() + spell1temp[1][1:]
+            sums.addSummonerSpell(spell1, 1)
+
+            if event_json['spell2IconPath'] in sum_exception.keys():
+                spell2 = sum_exception[event_json['spell2IconPath']]
+            else:
+                spell2temp = event_json['spell2IconPath'].split("/")[-1][:-4].split("_")
+                print("spell2temp = "  + str(spell2temp))
+                spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
+            sums.addSummonerSpell(spell2, 2)
 
         if event.uri.startswith("/lol-summoner/v1/current-summoner"):
             print()
