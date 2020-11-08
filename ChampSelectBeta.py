@@ -12,8 +12,7 @@ REGION = "na1"
 players_dict = defaultdict(dict)
 name_dict = defaultdict(str)
 bans_dict = defaultdict(list)
-# Summoner : [List of mains]
-banned_mains = {}
+
 
 sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
                  "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
@@ -65,7 +64,6 @@ class PrintChampSelectInfo(EventProcessor):
                     "summonerId": event_json['summonerId'],
                     "skinId": event_json['skinId'],
                     "spell1": event_json['spell1IconPath'],
-                    # FIX-ME - Integrate better with DataDragon, use actual spell name?
                     "spell2": event_json['spell2IconPath'],
                 }
                 players_dict[summonerSlotID] = temp
@@ -89,6 +87,7 @@ class PrintChampSelectInfo(EventProcessor):
                     else:
                         spell1temp = event_json['spell1IconPath'].split("/")[-1][:-4].split("_")
                         #print("spell1temp = " + str(spell1temp))
+                        # print("spell1temp = " + str(spell1temp))
                         spell1 = spell1temp[0] + spell1temp[1][0].upper() + spell1temp[1][1:]
                     sums.addSummonerSpell(spell1, 2 * summonerSlotID + 1)
 
@@ -97,6 +96,7 @@ class PrintChampSelectInfo(EventProcessor):
                     else:
                         spell2temp = event_json['spell2IconPath'].split("/")[-1][:-4].split("_")
                         #print("spell2temp = " + str(spell2temp))
+                        # print("spell2temp = " + str(spell2temp))
                         spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
                     sums.addSummonerSpell(spell2, 2*summonerSlotID + 2)
 
@@ -156,6 +156,7 @@ def main():
                 mains_json = requests.request("GET", mains_url, headers=headers).json()
                 temp['mains'] = [mains_json[0]['championId'], mains_json[1]['championId'], mains_json[2]['championId']]
                 name_dict[k] = temp
+                print(name_dict)
                 print(summoner_json['displayName'])
 
 
