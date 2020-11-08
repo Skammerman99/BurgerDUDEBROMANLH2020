@@ -24,6 +24,12 @@ class MyTweetListener(StreamListener):
                 if answer.lower() == 'y' or answer.lower() == 'yes':
                     break
             self.team_hashtag_dict[i] = unconfirmed_hashtag
+
+        
+        f = open("Hashtags.txt", "a", encoding="utf8")
+        for team, hashtag in self.team_hashtag_dict.items():
+            f.write(f"{team}: {hashtag}")
+        f.close()
             
         
         self.team_tweet_count_dict = {i:0 for i in range(self.number_of_teams)}
@@ -32,9 +38,10 @@ class MyTweetListener(StreamListener):
         
         twitter_json = json.loads(data) 
 
-        #file1.write(twitter_json["user"]["name"])
+        # Make temp string for writing
         temp = str(twitter_json["text"])
         
+        # Open and write to Tweets.txt
         file1 = open("Tweets.txt", "a", encoding="utf8")
 
         time.sleep(2)
@@ -50,15 +57,21 @@ class MyTweetListener(StreamListener):
             file1.write(' '.join(temp.split("\n")))
 
         file1.close()
+
+        # Open and write to Count.txt
+        f = open("Count.txt", "a", encoding="utf8")
+        
+        # Empty the file
+        f.truncate(0)
+        
         for team, hashtag in self.team_hashtag_dict.items():
-            if "extended_tweet" in twitter_json: #and "hashtags" in twitter_json["extended_tweet"]
-
+            if "extended_tweet" in twitter_json: 
                 if hashtag in twitter_json["extended_tweet"]["full_text"]:
-
                     self.team_tweet_count_dict[team] += 1
-                    #print(self.team_tweet_count_dict)
-
-
+                
+                f.write(f"{hashtag}: {self.team_tweet_count_dict[team]}")
+        # Close Count.txt
+        f.close()
         return True
     
     def on_error(self, status):
