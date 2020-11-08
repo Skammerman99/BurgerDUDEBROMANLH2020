@@ -107,7 +107,7 @@ def main():
                 temp = {
                     'username' : "",
                     'encryptedId' : 0,
-                    'mains' : [],
+                    'mains' : [], # NOTE: MAIN CHAMPS GET SAVED AS CHAMPION IDs
                 }
                 temp['username'] = summoner_json['displayName']
 
@@ -125,11 +125,23 @@ def main():
                 summ4json = requests.request("GET", summ_url, headers=headers).json()
                 temp['encrpytedId'] = summ4json['id']
                 print("Hi Jamel I got your encrypted id right here: ", summ4json['id'])
+
                 # Code to grab top 3 characters played
+                mains_url = "https://" + REGION + "/lol/champion-mastery/v4/champion-masteries/by-summoner/" + summ4json['id']
 
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36",
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "Origin": "https://developer.riotgames.com",
+                    "X-Riot-Token": RG_API_KEY
+                }
 
+                mains_json = requests.request("GET", mains_url, headers=headers).json()
+                temp['mains'] = [mains_json[0]['championId'], mains_json[1]['championId'], mains_json[2]['championId']]
                 name_dict[k] = temp
                 print(summoner_json['displayName'])
+
 
             temp = False
     lcu.wait()
