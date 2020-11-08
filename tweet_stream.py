@@ -54,6 +54,7 @@ class MyTweetListener(StreamListener):
             if "extended_tweet" in twitter_json: #and "hashtags" in twitter_json["extended_tweet"]
 
                 if hashtag in twitter_json["extended_tweet"]["full_text"]:
+
                     self.team_tweet_count_dict[team] += 1
                     #print(self.team_tweet_count_dict)
 
