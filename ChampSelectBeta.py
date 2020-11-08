@@ -10,13 +10,15 @@ import sums
 players_dict = defaultdict(dict)
 name_dict = defaultdict(str)
 
-sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png": "SummonerDot",
-                 "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png": "SummonerBarrier"}
+sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
+                 "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
 
-champ_name_exceptions = {"Kog'Maw": "KogMaw",
-                         "Nunu & Willump": "Nunu",
-                         "Rek'Sai": "RekSai"
-                         }
+champ_name_exceptions = {"Kog'Maw" : "KogMaw",
+                         "Nunu & Willump" : "Nunu",
+                         "Rek'Sai" : "RekSai",
+                         "Dr. Mundo" : "DrMundo",
+                         "LeBlanc" : "Leblanc"
+                        }
 
 class PrintChampSelectInfo(EventProcessor):
     global players_dict
@@ -33,17 +35,7 @@ class PrintChampSelectInfo(EventProcessor):
             # If a champ has been banned
             if event_json['selectionStatus']['isBanned']:
                 print(event_json['name'] + " has been banned.")
-            # If a champ is not banned but has "pickedByOtherOrBanned" set to True, it has been picked
-            # elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus'][
-            #    'pickedByOtherOrBanned']:
-            # if event_json['name'] in champ_name_exceptions.keys():
-            # champ_name = champ_name_exceptions[event_json['name']]
-            # else:
-            # champ_name = event_json['name'].replace(" ", "")
-            # if "'" in champ_name:
-            #   champ_name = champ_name[0] + champ_name[1:].replace("'", "").lower()
-            # print(champ_name + " has been picked.")
-            # champ_select_overlay.addChampPick(champ_name, 0, 1)
+
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
             if not event_json['isPlaceholder']:
                 print(event_json)
@@ -58,9 +50,17 @@ class PrintChampSelectInfo(EventProcessor):
                 players_dict[summonerSlotID] = temp
 
                 champ_name = event_json['championName']
+
                 if champ_name != "" and event_json['activeActionType'] == "pick":
+                    if champ_name in champ_name_exceptions.keys():
+                        champ_name = champ_name_exceptions[champ_name]
+                    else:
+                        champ_name = champ_name.replace(" ", "")
+                        if "'" in champ_name:
+                          champ_name = champ_name[0] + champ_name[1:].replace("'", "").lower()
                     print(champ_name + " has been picked.")
-                    champ_select_overlay.addChampPick(champ_name, 0, summonerSlotID + 1)
+                    champ_select_overlay.addChampPick(champ_name, 0, summonerSlotID+1)
+
                 if not event_json['spell1IconPath'] == '' and not event_json['spell1IconPath'] == '':
                     print(event_json['spell1IconPath'])
                     if event_json['spell1IconPath'] in sum_exception.keys():
@@ -77,7 +77,7 @@ class PrintChampSelectInfo(EventProcessor):
                         spell2temp = event_json['spell2IconPath'].split("/")[-1][:-4].split("_")
                         print("spell2temp = " + str(spell2temp))
                         spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
-                    sums.addSummonerSpell(spell2, 2 * summonerSlotID + 2)
+                    sums.addSummonerSpell(spell2, 2*summonerSlotID + 2)
 
 
 def main():
