@@ -5,7 +5,8 @@ import requests
 import champ_select_overlay
 import sums
 
-players_dict = defaultdict(dict)
+players_dict = defaultdict(dict) # Constantly changing/updating, contains summonerId info
+player_name_dict = defaultdict(dict) #
 
 champ_name_exceptions = {"Kog'Maw" : "KogMaw",
                          "Nunu & Willump" : "Nunu",
@@ -37,6 +38,7 @@ def playerDictHelper(summonerName):
 
 class PrintChampSelectInfo(EventProcessor):
     global players_dict
+    global player_name_dict
 
     # Returns True if the event handler can handle the event, False otherwise.
     def can_handle(self, event: Event):
@@ -51,6 +53,7 @@ class PrintChampSelectInfo(EventProcessor):
 
     def handle(self, event: Event):
         event_json = event.data['data']
+        # HANDLES BANS
         if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
             # If a champ has been banned
             if event_json['selectionStatus']['isBanned']:
@@ -67,7 +70,7 @@ class PrintChampSelectInfo(EventProcessor):
                 #print(champ_name + " has been picked.")
                 #champ_select_overlay.addChampPick(champ_name, 0, 1)
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
-            print(event_json)
+            # print(event_json)
             summonerSlotID = event_json['slotId']
             temp = {
                 "summonerId": event_json['summonerId'],
@@ -100,10 +103,17 @@ class PrintChampSelectInfo(EventProcessor):
                 spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
             sums.addSummonerSpell(spell2, 2)
 
-        if event.uri.startswith("/lol-summoner/v1/current-summoner"):
-            print()
-            print("TEST JSON LOOK HERE JAMEL LOOK")
-            print(event_json)
+        if event.uri.startswith("/lol-champ-select/v1/session"):
+            for person in event_json['myTeam']:
+                if person['cellId'] not in player_name_dict.keys():
+                    player_name_dict[person['cellId']] = ""
+            for person in event_json['theirTeam']:
+                if person['cellId'] not in player_name_dict.keys():
+                    player_name_dict[person['cellId']] = ""
+
+
+
+
 
 
 
@@ -116,12 +126,22 @@ class InGameStats(EventProcessor):
 
 
 def main():
+    global players_dict
+    global player_name_dict
     lcu = LCU()
     lcu.attach_event_processor(PrintChampSelectInfo())
     lcu.wait_for_client_to_open()
     lcu.wait_for_login()
     lcu.process_event_stream()
+    test = lcu.post('/lol-summoner/v2/summoners/names')
+    for item in test:
+        print("JAMEL LOOK")
+        for k,v in players_dict.items():
+            if v['summonerId'] == item['summonerId']:
+                player_name_dict[k] = item['displayName']
+                print(item['displayName'])
     lcu.wait()
+
 
 
 if __name__ == '__main__':
