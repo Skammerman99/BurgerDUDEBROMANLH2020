@@ -5,33 +5,18 @@ import requests
 import champ_select_overlay
 import sums
 
+# players_dict is constantly updating to check for summoner spell changes & champion changes.
+# name_dict is created at the start of champ select and is not updated
 players_dict = defaultdict(dict)
 name_dict = defaultdict(str)
 
-sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
-                 "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png" : "SummonerBarrier"}
+sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png": "SummonerDot",
+                 "/lol-game-data/assets/DATA/Spells/Icons2D/SummonerBarrier.png": "SummonerBarrier"}
 
-champ_name_exceptions = {"Kog'Maw" : "KogMaw",
-                         "Nunu & Willump" : "Nunu",
-                         "Rek'Sai" : "RekSai"
-                        }
-
-
-def playerDictHelper(summonerName):
-    summoner_name = str(summonerName)
-    url = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-account/"
-
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Origin": "https://developer.riotgames.com",
-        "X-Riot-Token": RG_API_KEY
-    }
-
-    response = requests.request("GET", url + summoner_name, headers=headers)
-    print(response.json()['id'])
-
+champ_name_exceptions = {"Kog'Maw": "KogMaw",
+                         "Nunu & Willump": "Nunu",
+                         "Rek'Sai": "RekSai"
+                         }
 
 class PrintChampSelectInfo(EventProcessor):
     global players_dict
@@ -42,7 +27,6 @@ class PrintChampSelectInfo(EventProcessor):
             return True
         return False
 
-
     def handle(self, event: Event):
         event_json = event.data['data']
         if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
@@ -50,16 +34,16 @@ class PrintChampSelectInfo(EventProcessor):
             if event_json['selectionStatus']['isBanned']:
                 print(event_json['name'] + " has been banned.")
             # If a champ is not banned but has "pickedByOtherOrBanned" set to True, it has been picked
-            #elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus'][
+            # elif not event_json['selectionStatus']['isBanned'] and event_json['selectionStatus'][
             #    'pickedByOtherOrBanned']:
-                #if event_json['name'] in champ_name_exceptions.keys():
-                    #champ_name = champ_name_exceptions[event_json['name']]
-                #else:
-                    #champ_name = event_json['name'].replace(" ", "")
-                    #if "'" in champ_name:
-                     #   champ_name = champ_name[0] + champ_name[1:].replace("'", "").lower()
-                #print(champ_name + " has been picked.")
-                #champ_select_overlay.addChampPick(champ_name, 0, 1)
+            # if event_json['name'] in champ_name_exceptions.keys():
+            # champ_name = champ_name_exceptions[event_json['name']]
+            # else:
+            # champ_name = event_json['name'].replace(" ", "")
+            # if "'" in champ_name:
+            #   champ_name = champ_name[0] + champ_name[1:].replace("'", "").lower()
+            # print(champ_name + " has been picked.")
+            # champ_select_overlay.addChampPick(champ_name, 0, 1)
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
             if not event_json['isPlaceholder']:
                 print(event_json)
@@ -76,7 +60,7 @@ class PrintChampSelectInfo(EventProcessor):
                 champ_name = event_json['championName']
                 if champ_name != "" and event_json['activeActionType'] == "pick":
                     print(champ_name + " has been picked.")
-                    champ_select_overlay.addChampPick(champ_name, 0, summonerSlotID+1)
+                    champ_select_overlay.addChampPick(champ_name, 0, summonerSlotID + 1)
                 if not event_json['spell1IconPath'] == '' and not event_json['spell1IconPath'] == '':
                     print(event_json['spell1IconPath'])
                     if event_json['spell1IconPath'] in sum_exception.keys():
@@ -85,7 +69,7 @@ class PrintChampSelectInfo(EventProcessor):
                         spell1temp = event_json['spell1IconPath'].split("/")[-1][:-4].split("_")
                         print("spell1temp = " + str(spell1temp))
                         spell1 = spell1temp[0] + spell1temp[1][0].upper() + spell1temp[1][1:]
-                    sums.addSummonerSpell(spell1, 2*summonerSlotID + 1)
+                    sums.addSummonerSpell(spell1, 2 * summonerSlotID + 1)
 
                     if event_json['spell2IconPath'] in sum_exception.keys():
                         spell2 = sum_exception[event_json['spell2IconPath']]
@@ -93,16 +77,7 @@ class PrintChampSelectInfo(EventProcessor):
                         spell2temp = event_json['spell2IconPath'].split("/")[-1][:-4].split("_")
                         print("spell2temp = " + str(spell2temp))
                         spell2 = spell2temp[0] + spell2temp[1][0].upper() + spell2temp[1][1:]
-                    sums.addSummonerSpell(spell2, 2*summonerSlotID + 2)
-
-
-
-class InGameStats(EventProcessor):
-    # Returns True if the event handler can handle the event, False otherwise.
-    def can_handle(self, event: Event):
-        if issubclass(event.__class__, Event):
-            return True
-        return False
+                    sums.addSummonerSpell(spell2, 2 * summonerSlotID + 2)
 
 
 def main():
@@ -114,19 +89,19 @@ def main():
     lcu.wait_for_login()
     lcu.process_event_stream()
     temp = True
-    while temp == True:
+    while temp:
         if players_dict[0] == {}:
             import time
             time.sleep(2)
-            print("I sleep")
+            print("Awaiting start of Champ Select")
         else:
-            print("WOKE")
-            for k,v in players_dict.items():
+            print("Champ Select detected, players present:")
+            for k, v in players_dict.items():
                 url = '/lol-summoner/v1/summoners/' + str(players_dict[k]['summonerId'])
                 summoner_json = lcu.get(url)
                 name_dict[k] = summoner_json['displayName']
-                temp = False
-            print(name_dict)
+                print(summoner_json['displayName'])
+            temp = False
     lcu.wait()
 
 
