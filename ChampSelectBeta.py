@@ -11,7 +11,7 @@ REGION = "na1"
 # name_dict is created at the start of champ select and is not updated
 players_dict = defaultdict(dict)
 name_dict = defaultdict(str)
-bans_dict = defaultdict(list)
+bans_dict = defaultdict(lambda: defaultdict(str))
 
 
 sum_exception = {"/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png" : "SummonerDot",
@@ -40,20 +40,22 @@ class PrintChampSelectInfo(EventProcessor):
         event_json = event.data['data']
         if event.uri.startswith("/lol-champ-select/v1/session"):
             print("BANS HERE PLS WORG " + str(event_json['bans']))
-            bans_dict["blue_side_ids"] = event_json['bans']['myTeamBans']
-            bans_dict["red_side_ids"] = event_json['bans']['theirTeamBans']
-            print(bans_dict)
+            # for ban in event_json['bans']['myTeamBans']:
+            #     bans_dict["blue_side"] =
+            # bans_dict["blue_side"] = event_json['bans']['myTeamBans']
+            # bans_dict["red_side"] = event_json['bans']['theirTeamBans']
+            # print(bans_dict)
 
         if event.uri.startswith("/lol-champ-select/v1/grid-champions"):
             # If a champ has been banned
             if event_json['selectionStatus']['isBanned']:
                 print(event_json['name'] + " has been banned.")
-                if len(bans_dict["blue_side_names"]) == len(bans_dict["red_side_names"]):
-                    bans_dict["blue_side_names"].append(event_json['name'])
-                    champ_select_overlay.addChampBan(event_json['name'], len(bans_dict["blue_side_names"]))
+                if len(bans_dict["blue_side"]) == len(bans_dict["red_side"]):
+                    bans_dict["blue_side"][event_json['id']] = event_json['name']
+                    champ_select_overlay.addChampBan(event_json['name'], len(bans_dict["blue_side"]))
                 else:
-                    bans_dict["red_side_names"].append(event_json['name'])
-                    champ_select_overlay.addChampBan(event_json['name'], len(bans_dict["red_side_names"]) + 5)
+                    bans_dict["red_side"][event_json['id']] = event_json['name']
+                    champ_select_overlay.addChampBan(event_json['name'], len(bans_dict["red_side"]) + 5)
                 print(bans_dict)
 
         if event.uri.startswith("/lol-champ-select/v1/summoners"):
