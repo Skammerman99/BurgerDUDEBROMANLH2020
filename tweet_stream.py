@@ -70,6 +70,6 @@ if __name__ == "__main__":
     auth.set_access_token(access_token, access_secret)
 
     strem = tweepy.Stream(auth, listener)
-    strem.filter(languages = ['en'], track=[el for el in listener.team_hashtag_dict.values()])
+    strem.filter(languages=["en"],track=[el for el in listener.team_hashtag_dict.values()])
 
     print("You're all set. Filtering tweets now!!")

@@ -5,7 +5,7 @@ champion = "Yasuo"
 
 image_url= "http://ddragon.leagueoflegends.com/cdn/10.22.1/img/champion/{}.png".format(champion)
 filename = image_url.split("/")[-1]
-print(filename)
+# print(filename)
 
 r= requests.get(image_url, stream =True)
 
